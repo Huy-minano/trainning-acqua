@@ -10,7 +10,7 @@
       track-by="title"
       :options="mountainList"
       :option-height="104"
-      :show-labels="false"
+      :show-labels="true"
     >
       <template slot="singleLabel" slot-scope="props">
         <img

@@ -1,6 +1,11 @@
 <template>
   <div>
-    <AppSelector :options="mountainList" @select="onSelect" />
+    <AppSelector
+      :options="mountainList"
+      @select="onSelect"
+      :close-on-select="true"
+      track-by="slug"
+    />
     {{ option?.title }}
   </div>
 </template>

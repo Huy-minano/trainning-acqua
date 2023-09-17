@@ -6,13 +6,19 @@
     class="multiselect"
   >
     <div class="multiselect__select" @click="onShowOptions()"></div>
-    <div class="multiselect__tags">
+    <div class="multiselect__tags" @click="onShowOptions()">
       <div class="multiselect__tags-wrap" style="display: none"></div>
       <div class="multiselect__spinner" style="display: none"></div>
-      <span v-if="!searchable" :class="classOptionChossed">
-        {{ optionChossed }}
+      <span v-if="!searchable" :class="classOptionChose">
+        {{ optionChoseforDisplay }}
       </span>
-      <input v-else name="" type="text" />
+      <input
+        v-else
+        name=""
+        type="text"
+        :value="optionChoseforDisplay"
+        placeholder="Type to search"
+      />
     </div>
     <div
       tabindex="-1"
@@ -28,7 +34,7 @@
       >
         <li
           v-for="(option, index) in options"
-          :id="option.slug"
+          :id="option[trackBy] || index"
           role="option"
           class="multiselect__element"
           @click="onChooseOption(option)"
@@ -55,22 +61,39 @@ export default {
       type: Boolean,
       default: true,
     },
+    closeOnSelect: {
+      type: Boolean,
+      default: true,
+    },
+    showLabels: {
+      type: Boolean,
+      default: true,
+    },
+    trackBy: {
+      type: String,
+      default: "",
+    },
+    allowEmpty: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
-      optionChoosed: "",
+      optionChose: {},
       isShowOptions: false,
+      searchData: "",
     };
   },
   computed: {
-    classOptionChossed() {
+    classOptionChose() {
       return {
-        multiselect__single: !!this.optionChoosed,
-        multiselect__placeholder: !this.optionChoosed,
+        multiselect__single: !!this.optionChose,
+        multiselect__placeholder: !this.optionChose,
       };
     },
-    optionChossed() {
-      return !!this.optionChoosed ? this.optionChoosed : "Pic a value";
+    optionChoseforDisplay() {
+      return !!this.optionChose ? this.optionChose.title : "Pic a value";
     },
   },
   methods: {
@@ -78,8 +101,18 @@ export default {
       this.isShowOptions = !this.isShowOptions;
     },
     onChooseOption(item) {
-      this.optionChoosed = item.title;
-      this.onShowOptions();
+      if (item.slug !== this.optionChose.slug) {
+        this.optionChose = item;
+      } else {
+        if (this.allowEmpty && item.slug) {
+          this.optionChose = {};
+        } else {
+          return;
+        }
+      }
+      if (this.closeOnSelect) {
+        this.onShowOptions();
+      }
       this.$emit("select", item);
     },
   },
