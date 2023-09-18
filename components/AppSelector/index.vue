@@ -5,20 +5,24 @@
     aria-owns="listbox-null"
     class="multiselect"
   >
-    <div class="multiselect__select" @click="onShowOptions()"></div>
-    <div class="multiselect__tags" @click="onShowOptions()">
-      <div class="multiselect__tags-wrap" style="display: none"></div>
-      <div class="multiselect__spinner" style="display: none"></div>
-      <span v-if="!searchable" :class="classOptionChose">
-        {{ optionChoseforDisplay }}
-      </span>
-      <input
-        v-else
-        name=""
-        type="text"
-        :value="optionChoseforDisplay"
-        placeholder="Type to search"
-      />
+    <div @click="onShowOptions()">
+      <div class="multiselect__select"></div>
+      <div class="multiselect__tags">
+        <div class="multiselect__tags-wrap" style="display: none"></div>
+        <div class="multiselect__spinner" style="display: none"></div>
+        <span v-if="!isShowInput" :class="classOptionChose">
+          {{ optionChoseforDisplay }}
+        </span>
+        <input
+          v-else
+          name=""
+          type="text"
+          :v-model="searchData"
+          @input="onSearchByKeyWork($event.target.value)"
+          v-on:click.stop
+          placeholder="Type to search"
+        />
+      </div>
     </div>
     <div
       tabindex="-1"
@@ -33,7 +37,7 @@
         style="display: inline-block"
       >
         <li
-          v-for="(option, index) in options"
+          v-for="(option, index) in optionsForShow"
           :id="option[trackBy] || index"
           role="option"
           :class="[
@@ -100,16 +104,21 @@ export default {
     customLabel: {
       type: Function,
       default: function () {
-        return this.optionChose[this.label] || "Pic a value";
+        return this.optionChose[this.label];
       },
     },
   },
   data() {
     return {
+      optionsForShow: [],
       optionChose: {},
       isShowOptions: false,
+      isShowInput: false,
       searchData: "",
     };
+  },
+  mounted() {
+    this.optionsForShow = this.options;
   },
   computed: {
     classOptionChose() {
@@ -120,7 +129,7 @@ export default {
     },
     optionChoseforDisplay() {
       return Object.keys(this.optionChose).length === 0
-        ? "Pic a value"
+        ? "Select One"
         : this.customLabel(this.optionChose);
     },
   },
@@ -145,13 +154,20 @@ export default {
     },
     onShowOptions() {
       this.isShowOptions = !this.isShowOptions;
+      if (this.searchable) {
+        this.isShowInput = !this.isShowInput;
+      }
     },
     onChooseOption(item) {
       if (item[this.trackBy] !== this.optionChose[this.trackBy]) {
         this.optionChose = item;
+        this.searchData = "";
+        this.optionsForShow = this.options;
       } else {
         if (this.allowEmpty && item.slug) {
           this.optionChose = {};
+          this.searchData = "";
+          this.optionsForShow = this.options;
         } else {
           return;
         }
@@ -160,6 +176,16 @@ export default {
         this.onShowOptions();
       }
       this.$emit("select", this.optionChose);
+    },
+    onSearchByKeyWork(keyword = "") {
+      this.searchData = keyword;
+      let result = [];
+      for (let i = 0; i < this.options.length; i++) {
+        if (this.options[i][this.label].includes(keyword)) {
+          result.push(this.options[i]);
+        }
+      }
+      this.optionsForShow = result;
     },
   },
 };

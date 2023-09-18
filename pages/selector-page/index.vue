@@ -4,7 +4,9 @@
       :options="mountainList"
       @select="onSelect"
       label= 'title'
+      :searchable="true"
       :close-on-select="true"
+      :allowEmpty='true'
       :custom-label="nameWithContinent"
       track-by="slug"
     />
