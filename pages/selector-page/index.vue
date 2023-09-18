@@ -3,14 +3,17 @@
     <AppSelector
       :options="mountainList"
       @select="onSelect"
-      label= 'title'
+      @multySelects="onMultySelects"
+      label="title"
       :searchable="true"
       :close-on-select="true"
-      :allowEmpty='true'
+      :allowEmpty="true"
       :custom-label="nameWithContinent"
+      :multiple="true"
       track-by="slug"
     />
-    {{ option?.title }}
+    {{ option?.title }} 
+    <span v-for="option in options">{{ option.title }}</span>
   </div>
 </template>
 
@@ -24,6 +27,7 @@ export default {
   data() {
     return {
       option: {},
+      options: [],
     };
   },
   computed: {
@@ -33,9 +37,12 @@ export default {
     onSelect(item) {
       this.option = item;
     },
-    nameWithContinent ({ title, continent }) {
-      return `${title} — [${continent}]`
-    }
+    onMultySelects(multiItem) {
+      this.options = multiItem
+    },
+    nameWithContinent({ title, continent }) {
+      return `${title} — [${continent}]`;
+    },
   },
 };
 </script>

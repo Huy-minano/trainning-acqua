@@ -42,7 +42,8 @@
           role="option"
           :class="[
             'multiselect__element',
-            option[trackBy] === optionChose[trackBy]
+            option[trackBy] === optionChose[trackBy] ||
+            optionsChose.includes(option)
               ? ' multiselect__option--selected'
               : '',
           ]"
@@ -70,7 +71,7 @@
 
 <script>
 export default {
-  emits: ["select"],
+  emits: ["select", "multySelects"],
   props: {
     options: Array,
     label: {
@@ -107,11 +108,16 @@ export default {
         return this.optionChose[this.label];
       },
     },
+    multiple: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
       optionsForShow: [],
       optionChose: {},
+      optionsChose: [],
       isShowOptions: false,
       isShowInput: false,
       searchData: "",
@@ -123,33 +129,58 @@ export default {
   computed: {
     classOptionChose() {
       return {
-        multiselect__single: !!this.optionChose,
-        multiselect__placeholder: !this.optionChose,
+        multiselect__single: !!this.optionChose || !!this.optionsForShow.length,
+        multiselect__placeholder:
+          !this.optionChose || !this.optionsForShow.length,
       };
     },
     optionChoseforDisplay() {
-      return Object.keys(this.optionChose).length === 0
-        ? "Select One"
-        : this.customLabel(this.optionChose);
+      if (!this.multiple) {
+        return Object.keys(this.optionChose).length === 0
+          ? "Select One"
+          : this.customLabel(this.optionChose);
+      } else {
+        return this.options.length === 0
+          ? "Select Some"
+          : this.customLabel(this.optionChose);
+      }
     },
   },
   methods: {
     addClass: function (option, e) {
-      const className =
-        option[this.trackBy] === this.optionChose[this.trackBy]
+      if (!this.multiple) {
+        const className =
+          option[this.trackBy] === this.optionChose[this.trackBy]
+            ? "multiselect__option--highlight-deselect"
+            : "multiselect__option--highlight";
+        if (!e.target.classList.contains(className)) {
+          e.target.classList.add(className);
+        }
+      } else {
+        const className = this.optionsChose.includes(option)
           ? "multiselect__option--highlight-deselect"
           : "multiselect__option--highlight";
-      if (!e.target.classList.contains(className)) {
-        e.target.classList.add(className);
+        if (!e.target.classList.contains(className)) {
+          e.target.classList.add(className);
+        }
       }
     },
     removeClass: function (option, e) {
-      const className =
-        option[this.trackBy] === this.optionChose[this.trackBy]
+      if (!this.multiple) {
+        const className =
+          option[this.trackBy] === this.optionChose[this.trackBy]
+            ? "multiselect__option--highlight-deselect"
+            : "multiselect__option--highlight";
+        if (e.target.classList.contains(className)) {
+          e.target.classList.remove(className);
+        }
+      } else {
+        const className = this.optionsChose.includes(option)
           ? "multiselect__option--highlight-deselect"
           : "multiselect__option--highlight";
-      if (e.target.classList.contains(className)) {
-        e.target.classList.remove(className);
+        if (e.target.classList.contains(className)) {
+          e.target.classList.remove(className);
+        }
       }
     },
     onShowOptions() {
@@ -159,23 +190,38 @@ export default {
       }
     },
     onChooseOption(item) {
-      if (item[this.trackBy] !== this.optionChose[this.trackBy]) {
-        this.optionChose = item;
-        this.searchData = "";
-        this.optionsForShow = this.options;
-      } else {
-        if (this.allowEmpty && item.slug) {
-          this.optionChose = {};
+      if (!this.multiple) {
+        if (item[this.trackBy] !== this.optionChose[this.trackBy]) {
+          this.optionChose = item;
           this.searchData = "";
           this.optionsForShow = this.options;
         } else {
-          return;
+          if (this.allowEmpty && item.slug) {
+            this.optionChose = {};
+            this.searchData = "";
+            this.optionsForShow = this.options;
+          } else {
+            return;
+          }
         }
+        if (this.closeOnSelect) {
+          this.onShowOptions();
+        }
+        this.$emit("select", this.optionChose);
+      } else {
+        if (!this.optionsChose.includes(item)) {
+          this.optionsChose.push(item);
+          this.searchData = "";
+          this.optionsForShow = this.options;
+        } else {
+          this.optionsChose = this.optionsChose.filter(
+            (option) => option[this.trackBy] !== item[this.trackBy]
+          );
+          this.searchData = "";
+          this.optionsForShow = this.options;
+        }
+        this.$emit("multySelects", this.optionsChose);
       }
-      if (this.closeOnSelect) {
-        this.onShowOptions();
-      }
-      this.$emit("select", this.optionChose);
     },
     onSearchByKeyWork(keyword = "") {
       this.searchData = keyword;
