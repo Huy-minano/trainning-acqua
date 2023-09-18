@@ -36,16 +36,28 @@
           v-for="(option, index) in options"
           :id="option[trackBy] || index"
           role="option"
-          class="multiselect__element"
+          :class="[
+            'multiselect__element',
+            option[trackBy] === optionChose[trackBy]
+              ? ' multiselect__option--selected'
+              : '',
+          ]"
           @click="onChooseOption(option)"
         >
-          <span
-            data-select=""
-            data-selected=""
-            data-deselect=""
-            class="multiselect__option multiselect__option--highlight"
-            ><span>{{ option.title }}</span></span
+          <div
+            class="multiselect__option"
+            @mouseenter="addClass(option, $event)"
+            @mouseleave="removeClass(option, $event)"
           >
+            <span
+              >{{ option[label] }}
+              <span
+                v-if="!allowEmpty && option[trackBy] === optionChose[trackBy]"
+                class="multiselect__note--deselect"
+                >{{ deselectLabel }}</span
+              ></span
+            >
+          </div>
         </li>
       </ul>
     </div>
@@ -57,6 +69,10 @@ export default {
   emits: ["select"],
   props: {
     options: Array,
+    label: {
+      type: String,
+      default: "title",
+    },
     searchable: {
       type: Boolean,
       default: true,
@@ -75,7 +91,17 @@ export default {
     },
     allowEmpty: {
       type: Boolean,
-      default: true,
+      default: false,
+    },
+    deselectLabel: {
+      type: String,
+      default: "Can't remove this value",
+    },
+    customLabel: {
+      type: Function,
+      default: function () {
+        return this.optionChose[this.label] || "Pic a value";
+      },
     },
   },
   data() {
@@ -93,15 +119,35 @@ export default {
       };
     },
     optionChoseforDisplay() {
-      return !!this.optionChose ? this.optionChose.title : "Pic a value";
+      return Object.keys(this.optionChose).length === 0
+        ? "Pic a value"
+        : this.customLabel(this.optionChose);
     },
   },
   methods: {
+    addClass: function (option, e) {
+      const className =
+        option[this.trackBy] === this.optionChose[this.trackBy]
+          ? "multiselect__option--highlight-deselect"
+          : "multiselect__option--highlight";
+      if (!e.target.classList.contains(className)) {
+        e.target.classList.add(className);
+      }
+    },
+    removeClass: function (option, e) {
+      const className =
+        option[this.trackBy] === this.optionChose[this.trackBy]
+          ? "multiselect__option--highlight-deselect"
+          : "multiselect__option--highlight";
+      if (e.target.classList.contains(className)) {
+        e.target.classList.remove(className);
+      }
+    },
     onShowOptions() {
       this.isShowOptions = !this.isShowOptions;
     },
     onChooseOption(item) {
-      if (item.slug !== this.optionChose.slug) {
+      if (item[this.trackBy] !== this.optionChose[this.trackBy]) {
         this.optionChose = item;
       } else {
         if (this.allowEmpty && item.slug) {
@@ -113,7 +159,7 @@ export default {
       if (this.closeOnSelect) {
         this.onShowOptions();
       }
-      this.$emit("select", item);
+      this.$emit("select", this.optionChose);
     },
   },
 };

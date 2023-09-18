@@ -15,3 +15,26 @@
 .app-select__element {
   min-height: 40px;
 }
+
+.multiselect__option {
+  position: relative;
+}
+
+.multiselect__option > span {
+  display: block;
+  width: fit-content;
+}
+
+.multiselect__option--highlight-deselect {
+  background-color: rgb(235, 79, 79);
+}
+
+.multiselect__option--highlight-deselect > span {
+  color: #fff;
+}
+
+.multiselect__note--deselect {
+  position: absolute;
+  right: 8px;
+  font-weight: 300;
+}

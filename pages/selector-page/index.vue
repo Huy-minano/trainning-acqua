@@ -3,7 +3,9 @@
     <AppSelector
       :options="mountainList"
       @select="onSelect"
+      label= 'title'
       :close-on-select="true"
+      :custom-label="nameWithContinent"
       track-by="slug"
     />
     {{ option?.title }}
@@ -29,6 +31,9 @@ export default {
     onSelect(item) {
       this.option = item;
     },
+    nameWithContinent ({ title, continent }) {
+      return `${title} — [${continent}]`
+    }
   },
 };
 </script>
