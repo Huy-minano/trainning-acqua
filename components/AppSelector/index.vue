@@ -8,35 +8,37 @@
     <div @click="onShowOptions()">
       <div class="multiselect__select"></div>
       <div class="multiselect__tags">
-        <div v-if="taggable" class="multiselect__tags-wrap">
-          <span
-            v-for="option in optionsChose"
-            :id="option[trackBy]"
-            v-on:click.stop
-            class="multiselect__tag"
-            ><span>{{ option[label] }}</span>
-            <i
-              tabindex="1"
-              class="multiselect__tag-icon"
+        <slot name="singleLabel" :option="optionChose">
+          <div v-if="taggable" class="multiselect__tags-wrap">
+            <span
+              v-for="option in optionsChose"
+              :id="option[trackBy]"
               v-on:click.stop
-              @click="removeOptionFromOptionsChose(option)"
-            ></i
-          ></span>
-        </div>
-        <div v-else>
-          <span v-if="!isShowInput" :class="classOptionChose">
-            {{ optionChoseforDisplay }}
-          </span>
-          <input
-            v-else
-            name=""
-            type="text"
-            :v-model="searchData"
-            @input="onSearchByKeyWork($event.target.value)"
-            v-on:click.stop
-            placeholder="Type to search"
-          />
-        </div>
+              class="multiselect__tag"
+              ><span>{{ option[label] }}</span>
+              <i
+                tabindex="1"
+                class="multiselect__tag-icon"
+                v-on:click.stop
+                @click="removeOptionFromOptionsChose(option)"
+              ></i
+            ></span>
+          </div>
+          <div v-else>
+            <span v-if="!isShowInput" :class="classOptionChose">
+              {{ optionChoseforDisplay }}
+            </span>
+            <input
+              v-else
+              name=""
+              type="text"
+              :v-model="searchData"
+              @input="onSearchByKeyWork($event.target.value)"
+              v-on:click.stop
+              placeholder="Type to search"
+            />
+          </div>
+        </slot>
         <div class="multiselect__spinner" style="display: none"></div>
       </div>
     </div>
@@ -70,14 +72,16 @@
             @mouseenter="addClass(option, $event)"
             @mouseleave="removeClass(option, $event)"
           >
-            <span
-              >{{ option[label] }}
+            <slot name="option" :option="option">
               <span
-                v-if="!allowEmpty && option[trackBy] === optionChose[trackBy]"
-                class="multiselect__note--deselect"
-                >{{ deselectLabel }}</span
-              ></span
-            >
+                >{{ option[label] }}
+                <span
+                  v-if="!allowEmpty && option[trackBy] === optionChose[trackBy]"
+                  class="multiselect__note--deselect"
+                  >{{ deselectLabel }}</span
+                ></span
+              >
+            </slot>
           </div>
         </li>
       </ul>
