@@ -10,10 +10,16 @@
       :allowEmpty="true"
       :custom-label="nameWithContinent"
       :multiple="true"
+      :taggable="true"
       track-by="slug"
     />
-    {{ option?.title }} 
-    <span v-for="option in options">{{ option.title }}</span>
+    {{ option?.title }}
+    <div class="options-selected">
+      <div v-for="option in options" :id="option.slug" class="option-selected">
+        <p>{{ option.title }}</p>
+        <img :src="option.image" alt="">
+      </div>
+    </div>
   </div>
 </template>
 
@@ -38,7 +44,7 @@ export default {
       this.option = item;
     },
     onMultySelects(multiItem) {
-      this.options = multiItem
+      this.options = multiItem;
     },
     nameWithContinent({ title, continent }) {
       return `${title} — [${continent}]`;
@@ -46,3 +52,4 @@ export default {
   },
 };
 </script>
+

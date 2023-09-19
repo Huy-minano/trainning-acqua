@@ -8,20 +8,36 @@
     <div @click="onShowOptions()">
       <div class="multiselect__select"></div>
       <div class="multiselect__tags">
-        <div class="multiselect__tags-wrap" style="display: none"></div>
+        <div v-if="taggable" class="multiselect__tags-wrap">
+          <span
+            v-for="option in optionsChose"
+            :id="option[trackBy]"
+            v-on:click.stop
+            class="multiselect__tag"
+            ><span>{{ option[label] }}</span>
+            <i
+              tabindex="1"
+              class="multiselect__tag-icon"
+              v-on:click.stop
+              @click="removeOptionFromOptionsChose(option)"
+            ></i
+          ></span>
+        </div>
+        <div v-else>
+          <span v-if="!isShowInput" :class="classOptionChose">
+            {{ optionChoseforDisplay }}
+          </span>
+          <input
+            v-else
+            name=""
+            type="text"
+            :v-model="searchData"
+            @input="onSearchByKeyWork($event.target.value)"
+            v-on:click.stop
+            placeholder="Type to search"
+          />
+        </div>
         <div class="multiselect__spinner" style="display: none"></div>
-        <span v-if="!isShowInput" :class="classOptionChose">
-          {{ optionChoseforDisplay }}
-        </span>
-        <input
-          v-else
-          name=""
-          type="text"
-          :v-model="searchData"
-          @input="onSearchByKeyWork($event.target.value)"
-          v-on:click.stop
-          placeholder="Type to search"
-        />
       </div>
     </div>
     <div
@@ -112,6 +128,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    taggable: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -189,6 +209,20 @@ export default {
         this.isShowInput = !this.isShowInput;
       }
     },
+    addOptionToOptionsChose(item) {
+      this.optionsChose.push(item);
+      this.searchData = "";
+      this.optionsForShow = this.options;
+      this.$emit("multySelects", this.optionsChose);
+    },
+    removeOptionFromOptionsChose(item) {
+      this.optionsChose = this.optionsChose.filter(
+        (option) => option[this.trackBy] !== item[this.trackBy]
+      );
+      this.searchData = "";
+      this.optionsForShow = this.options;
+      this.$emit("multySelects", this.optionsChose);
+    },
     onChooseOption(item) {
       if (!this.multiple) {
         if (item[this.trackBy] !== this.optionChose[this.trackBy]) {
@@ -210,15 +244,9 @@ export default {
         this.$emit("select", this.optionChose);
       } else {
         if (!this.optionsChose.includes(item)) {
-          this.optionsChose.push(item);
-          this.searchData = "";
-          this.optionsForShow = this.options;
+          this.addOptionToOptionsChose(item);
         } else {
-          this.optionsChose = this.optionsChose.filter(
-            (option) => option[this.trackBy] !== item[this.trackBy]
-          );
-          this.searchData = "";
-          this.optionsForShow = this.options;
+          this.removeOptionFromOptionsChose(item);
         }
         this.$emit("multySelects", this.optionsChose);
       }
