@@ -5,14 +5,14 @@
       @select="onSelect"
       @multySelects="onMultySelects"
       label="title"
-      :searchable="false"
+      :searchable="true"
       :close-on-select="false"
       :allowEmpty="true"
-      :multiple="false"
+      :multiple="true"
       :taggable="true"
       track-by="slug"
     >
-      <template slot="singleLabel" slot-scope="slotProps" style="display: flex">
+      <!-- <template slot="singleLabel" slot-scope="slotProps" style="display: flex">
         <img
           class="option__image"
           :src="slotProps.option.image"
@@ -33,7 +33,7 @@
           <span class="option__title">{{ slotProps.option.title }}</span
           ><span class="option__small">{{ slotProps.option.description }}</span>
         </div>
-      </template>
+      </template> -->
     </AppSelector>
     <div class="option-selected">
       <p>{{ option.title }}</p>
@@ -45,6 +45,14 @@
         <img :src="option.image" alt="" />
       </div>
     </div>
+
+    <h3>Asynchronous select</h3>
+    <!-- <AppSelector
+
+    >
+
+    </AppSelector> -->
+
   </div>
 </template>
 

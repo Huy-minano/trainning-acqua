@@ -23,6 +23,15 @@
                 @click="removeOptionFromOptionsChose(option)"
               ></i
             ></span>
+            <input
+              name=""
+              type="text"
+              style="display: block"
+              :v-model="searchData"
+              @input="onSearchByKeyWork($event.target.value)"
+              v-on:click.stop
+              placeholder="Type to search"
+            />
           </div>
           <div v-else>
             <span v-if="!isShowInput" :class="classOptionChose">
@@ -39,6 +48,13 @@
             />
           </div>
         </slot>
+        <span
+          v-if="!isEmptySelected"
+          class="multiselect__clear"
+          v-on:click.stop
+          @click="onClearAll()"
+          >X</span
+        >
         <div class="multiselect__spinner" style="display: none"></div>
       </div>
     </div>
@@ -91,7 +107,7 @@
 
 <script>
 export default {
-  emits: ["select", "multySelects"],
+  emits: ["select", "multySelects", "search-change"],
   props: {
     options: Array,
     label: {
@@ -136,6 +152,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    hideSelected: {
+      type: Boolean,
+      default: false,
+    },
+    limit: {
+      type: Number,
+      default: 99999,
+    },
+    limitText: {
+      type: String,
+      default: "",
+    },
   },
   data() {
     return {
@@ -149,6 +177,7 @@ export default {
   },
   mounted() {
     this.optionsForShow = this.options;
+    console.log(this.$emit("search-change"));
   },
   computed: {
     classOptionChose() {
@@ -168,6 +197,9 @@ export default {
           ? "Select Some"
           : this.customLabel(this.optionChose);
       }
+    },
+    isEmptySelected() {
+      return !Object.keys(this.optionChose).length && !this.optionsChose.length;
     },
   },
   methods: {
@@ -254,6 +286,12 @@ export default {
         }
         this.$emit("multySelects", this.optionsChose);
       }
+    },
+    onClearAll() {
+      this.optionsChose = [];
+      this.optionChose = {};
+      this.$emit("multySelects", this.optionsChose);
+      this.$emit("select", this.optionChose);
     },
     onSearchByKeyWork(keyword = "") {
       this.searchData = keyword;

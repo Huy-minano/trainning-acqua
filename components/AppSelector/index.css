@@ -16,6 +16,10 @@
   min-height: 40px;
 }
 
+.multiselect__tags-wrap{
+  position: relative;
+}
+
 .multiselect__option {
   position: relative;
 }
@@ -37,4 +41,11 @@
   position: absolute;
   right: 8px;
   font-weight: 300;
+}
+
+.multiselect__clear{
+  position: absolute;
+  top: 14px;
+  right: 40px;
+  cursor: pointer;
 }
