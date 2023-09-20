@@ -55,7 +55,7 @@
           @click="onClearAll()"
           >X</span
         >
-        <div class="multiselect__spinner" style="display: none"></div>
+        <div v-if="loadding" class="multiselect__spinner"></div>
       </div>
     </div>
     <div
@@ -109,7 +109,7 @@
 export default {
   emits: ["select", "multySelects", "search-change"],
   props: {
-    options: Array,
+    options: [Array, Object],
     label: {
       type: String,
       default: "title",
@@ -152,6 +152,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    loadding: {
+      type: Boolean,
+      default: false,
+    },
     hideSelected: {
       type: Boolean,
       default: false,
@@ -163,6 +167,10 @@ export default {
     limitText: {
       type: String,
       default: "",
+    },
+    asynchronousSelect: {
+      type: Boolean,
+      default: false,
     },
   },
   data() {
@@ -177,7 +185,11 @@ export default {
   },
   mounted() {
     this.optionsForShow = this.options;
-    console.log(this.$emit("search-change"));
+  },
+  watch: {
+    options: function (newVal, oldVal) {
+      this.optionsForShow = newVal;
+    }
   },
   computed: {
     classOptionChose() {
@@ -295,13 +307,17 @@ export default {
     },
     onSearchByKeyWork(keyword = "") {
       this.searchData = keyword;
-      let result = [];
-      for (let i = 0; i < this.options.length; i++) {
-        if (this.options[i][this.label].includes(keyword)) {
-          result.push(this.options[i]);
+      if (this.asynchronousSelect) {
+        this.$emit("search-change", keyword);
+      } else {
+        let result = [];
+        for (let i = 0; i < this.options.length; i++) {
+          if (this.options[i][this.label].includes(keyword)) {
+            result.push(this.options[i]);
+          }
         }
+        this.optionsForShow = result;
       }
-      this.optionsForShow = result;
     },
   },
 };

@@ -8,11 +8,11 @@
       :searchable="true"
       :close-on-select="false"
       :allowEmpty="true"
-      :multiple="true"
-      :taggable="true"
+      :multiple="false"
+      :taggable="false"
       track-by="slug"
     >
-      <!-- <template slot="singleLabel" slot-scope="slotProps" style="display: flex">
+      <template slot="singleLabel" slot-scope="slotProps" style="display: flex">
         <img
           class="option__image"
           :src="slotProps.option.image"
@@ -33,7 +33,7 @@
           <span class="option__title">{{ slotProps.option.title }}</span
           ><span class="option__small">{{ slotProps.option.description }}</span>
         </div>
-      </template> -->
+      </template>
     </AppSelector>
     <div class="option-selected">
       <p>{{ option.title }}</p>
@@ -47,12 +47,32 @@
     </div>
 
     <h3>Asynchronous select</h3>
-    <!-- <AppSelector
-
+    <AppSelector
+      :options="countries"
+      @select="onSelectCountry"
+      @multySelects="onMultySelectCountry"
+      label="name"
+      track-by="code"
+      :taggable="true"
+      :multiple="true"
+      :searchable="true"
+      :loading="isLoading"
+      :clear-on-select="false"
+      :close-on-select="false"
+      :asynchronous-select="true"
+      @search-change="asyncFind"
     >
-
-    </AppSelector> -->
-
+    </AppSelector>
+    <div class="options-selected">
+      <div
+        v-for="option in selectedCountries"
+        :id="option.slug"
+        class="option-selected"
+      >
+        <p>{{ option.name.common }}</p>
+        <img :src="option.flags.png" alt="" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -67,6 +87,10 @@ export default {
     return {
       option: {},
       options: [],
+      country: {},
+      selectedCountries: [],
+      countries: [],
+      isLoading: true,
     };
   },
   computed: {
@@ -76,11 +100,36 @@ export default {
     onSelect(item) {
       this.option = item;
     },
+    onSelectCountry(item) {
+      this.country = item;
+    },
     onMultySelects(multiItem) {
       this.options = multiItem;
     },
+    onMultySelectCountry(multiItem) {
+      console.log("multiItem", multiItem);
+      this.selectedCountries = multiItem;
+    },
     nameWithContinent({ title, continent }) {
       return `${title} — [${continent}]`;
+    },
+    limitText(count) {
+      return `and ${count} other countries`;
+    },
+    async asyncFind(query) {
+      this.isLoading = true;
+      await fetch(`https://restcountries.com/v3.1/name/${query}`)
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else return [];
+        })
+        .then((response) => {
+          this.countries = response;
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
     },
   },
 };
