@@ -90,7 +90,7 @@
             'multiselect__element',
             option[trackBy] === optionChose[trackBy] ||
             optionsChose.includes(option)
-              ? ' multiselect__option--selected'
+              ? 'multiselect__option--selected'
               : '',
           ]"
           @click="onChooseOption(option)"
@@ -430,12 +430,14 @@ export default {
             }
           }
           if (!!listOptionResult.length) {
-            this.options[i][this.groupValues] = listOptionResult;
-            listGroupResult.push(this.options[i]);
+            listGroupResult.push({
+              ...this.options[i],
+              [this.groupValues]: [...listOptionResult],
+            });
           }
           listOptionResult = [];
         }
-        this.optionsForShow = listGroupResult;
+        this.optionsForShow = [...listGroupResult];
       }
     },
   },
