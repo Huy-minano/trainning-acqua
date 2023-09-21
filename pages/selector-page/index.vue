@@ -52,7 +52,7 @@
       @select="onSelectCountry"
       @multySelects="onMultySelectCountry"
       label="name"
-      track-by="code"
+      track-by="idd"
       :taggable="true"
       :multiple="true"
       :searchable="true"
@@ -73,6 +73,30 @@
         <img :src="option.flags.png" alt="" />
       </div>
     </div>
+
+    <h3>Group select</h3>
+    <AppSelector
+      :options="groupOptions"
+      @multySelects="onSelectGroupOptions"
+      :multiple="true"
+      group-values="libs"
+      group-label="language"
+      :group-select="true"
+      placeholder="Type to search"
+      track-by="name"
+      label="name"
+      :taggable="true"
+    />
+    </AppSelector>
+    <div class="options-selected">
+      <div
+        v-for="option in selectedGroupOptions"
+        :id="option.name"
+        class="option-selected"
+      >
+        <p>{{ option.name }}</p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -91,6 +115,30 @@ export default {
       selectedCountries: [],
       countries: [],
       isLoading: true,
+      groupOptions: [
+        {
+          language: "Javascript",
+          libs: [
+            { name: "Vue.js", category: "Front-end" },
+            { name: "Adonis", category: "Backend" },
+          ],
+        },
+        {
+          language: "Ruby",
+          libs: [
+            { name: "Rails", category: "Backend" },
+            { name: "Sinatra", category: "Backend" },
+          ],
+        },
+        {
+          language: "Other",
+          libs: [
+            { name: "Laravel", category: "Backend" },
+            { name: "Phoenix", category: "Backend" },
+          ],
+        },
+      ],
+      selectedGroupOptions: [],
     };
   },
   computed: {
@@ -107,7 +155,6 @@ export default {
       this.options = multiItem;
     },
     onMultySelectCountry(multiItem) {
-      console.log("multiItem", multiItem);
       this.selectedCountries = multiItem;
     },
     nameWithContinent({ title, continent }) {
@@ -130,6 +177,9 @@ export default {
         .finally(() => {
           this.isLoading = false;
         });
+    },
+    onSelectGroupOptions(multiItem) {
+      this.selectedGroupOptions = multiItem;
     },
   },
 };

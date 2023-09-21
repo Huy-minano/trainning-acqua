@@ -26,8 +26,14 @@
             <input
               name=""
               type="text"
+              class="multiselect__input"
               style="display: block"
               :v-model="searchData"
+              @click="
+                () => {
+                  isShowOptions = true;
+                }
+              "
               @input="onSearchByKeyWork($event.target.value)"
               v-on:click.stop
               placeholder="Type to search"
@@ -41,7 +47,13 @@
               v-else
               name=""
               type="text"
+              class="multiselect__input"
               :v-model="searchData"
+              @click="
+                () => {
+                  isShowOptions = true;
+                }
+              "
               @input="onSearchByKeyWork($event.target.value)"
               v-on:click.stop
               placeholder="Type to search"
@@ -62,7 +74,7 @@
       tabindex="-1"
       class="multiselect__content-wrapper"
       style="max-height: 300px"
-      v-if="isShowOptions"
+      v-if="isShowOptions && !groupSelect"
     >
       <ul
         role="listbox"
@@ -99,6 +111,55 @@
               >
             </slot>
           </div>
+        </li>
+      </ul>
+    </div>
+    <div
+      tabindex="-1"
+      class="multiselect__content-wrapper"
+      style="max-height: 300px"
+      v-else-if="isShowOptions && groupSelect"
+    >
+      <ul
+        role="listbox"
+        id="listbox-null"
+        class="multiselect__content"
+        style="display: inline-block"
+        v-for="(groupOption, index) in optionsForShow"
+        :id="groupOption"
+      >
+        <li
+          class="multiselect__element"
+          @click="onChooseGroupOption(groupOption)"
+        >
+          <span
+            class="multiselect__option multiselect__option--group multiselect__option--highlight"
+          >
+            {{ groupOption[groupLabel] }}
+          </span>
+        </li>
+        <li
+          v-for="option in groupOption[groupValues]"
+          :id="option[label]"
+          role="option"
+          :class="[
+            'multiselect__element',
+            option[trackBy] === optionChose[trackBy] ||
+            optionsChose.includes(option)
+              ? 'multiselect__option--selected'
+              : '',
+          ]"
+          @click="onChooseOption(option)"
+        >
+          <span
+            class="multiselect__option"
+            @mouseenter="addClass(option, $event)"
+            @mouseleave="removeClass(option, $event)"
+          >
+            <slot name="option" :option="groupOption">
+              <span>{{ option[label] }}</span>
+            </slot>
+          </span>
         </li>
       </ul>
     </div>
@@ -172,6 +233,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    groupLabel: {
+      type: String,
+      default: "",
+    },
+    groupValues: {
+      type: String,
+      default: "",
+    },
+    groupSelect: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -189,7 +262,7 @@ export default {
   watch: {
     options: function (newVal, oldVal) {
       this.optionsForShow = newVal;
-    }
+    },
   },
   computed: {
     classOptionChose() {
@@ -271,6 +344,18 @@ export default {
       this.optionsForShow = this.options;
       this.$emit("multySelects", this.optionsChose);
     },
+    removeOptionsFromOptionsChose(group) {
+      group.forEach((element) => {
+        if (this.optionsChose.includes(element)) {
+          this.optionsChose = this.optionsChose.filter(
+            (option) => option[this.trackBy] !== element[this.trackBy]
+          );
+        }
+      });
+      this.searchData = "";
+      this.optionsForShow = this.options;
+      this.$emit("multySelects", this.optionsChose);
+    },
     onChooseOption(item) {
       if (!this.multiple) {
         if (item[this.trackBy] !== this.optionChose[this.trackBy]) {
@@ -299,6 +384,22 @@ export default {
         this.$emit("multySelects", this.optionsChose);
       }
     },
+    onChooseGroupOption(item) {
+      if (!this.multiple) return;
+      if (this.isSelectedAllGroupOption(item[this.groupValues])) {
+        this.removeOptionsFromOptionsChose(item[this.groupValues]);
+        return;
+      }
+      item[this.groupValues].forEach((element) => {
+        if (this.optionsChose.includes(element)) {
+          return;
+        }
+        this.optionsChose.push(element);
+      });
+    },
+    isSelectedAllGroupOption(group) {
+      return group.every((op) => this.optionsChose.includes(op));
+    },
     onClearAll() {
       this.optionsChose = [];
       this.optionChose = {};
@@ -309,14 +410,32 @@ export default {
       this.searchData = keyword;
       if (this.asynchronousSelect) {
         this.$emit("search-change", keyword);
-      } else {
+      } else if (!this.groupSelect) {
         let result = [];
         for (let i = 0; i < this.options.length; i++) {
-          if (this.options[i][this.label].includes(keyword)) {
+          if (this.options[i][this.label]?.includes(keyword)) {
             result.push(this.options[i]);
           }
         }
         this.optionsForShow = result;
+      } else if (this.groupSelect) {
+        let listGroupResult = [];
+        let listOptionResult = [];
+        for (let i = 0; i < this.options.length; i++) {
+          for (let j = 0; j < this.options[i][this.groupValues].length; j++) {
+            if (
+              this.options[i][this.groupValues][j][this.label].includes(keyword)
+            ) {
+              listOptionResult.push(this.options[i][this.groupValues][j]);
+            }
+          }
+          if (!!listOptionResult.length) {
+            this.options[i][this.groupValues] = listOptionResult;
+            listGroupResult.push(this.options[i]);
+          }
+          listOptionResult = [];
+        }
+        this.optionsForShow = listGroupResult;
       }
     },
   },
