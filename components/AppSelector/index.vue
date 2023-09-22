@@ -9,20 +9,25 @@
       <div class="multiselect__select"></div>
       <div class="multiselect__tags">
         <slot name="singleLabel" :option="optionChose">
-          <div v-if="taggable" class="multiselect__tags-wrap">
-            <span
-              v-for="option in optionsChose"
-              :id="option[trackBy]"
-              v-on:click.stop
-              class="multiselect__tag"
-              ><span>{{ option[label] }}</span>
-              <i
-                tabindex="1"
-                class="multiselect__tag-icon"
+          <div v-if="taggable || multiple" class="multiselect__tags-wrap">
+            <div v-if="taggable">
+              <span
+                v-for="option in optionsChose"
+                :id="option[trackBy]"
                 v-on:click.stop
-                @click="removeOptionFromOptionsChose(option)"
-              ></i
-            ></span>
+                class="multiselect__tag"
+                ><span>{{ option[label] }}</span>
+                <i
+                  tabindex="1"
+                  class="multiselect__tag-icon"
+                  v-on:click.stop
+                  @click="removeOptionFromOptionsChose(option)"
+                ></i
+              ></span>
+            </div>
+            <span v-else-if="multiple && optionsChose.length">{{
+              optionsChose.length + " option selected"
+            }}</span>
             <input
               name=""
               type="text"
@@ -396,6 +401,7 @@ export default {
         }
         this.optionsChose.push(element);
       });
+      this.$emit("multySelects", this.optionsChose);
     },
     isSelectedAllGroupOption(group) {
       return group.every((op) => this.optionsChose.includes(op));
