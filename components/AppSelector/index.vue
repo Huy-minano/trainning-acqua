@@ -29,6 +29,7 @@
               optionsChose.length + " option selected"
             }}</span>
             <input
+              v-if="searchable"
               name=""
               type="text"
               class="multiselect__input"
@@ -175,7 +176,7 @@
 export default {
   emits: ["select", "multySelects", "search-change"],
   props: {
-    options: [Array, Object],
+    options: [Array],
     label: {
       type: String,
       default: "title",
@@ -259,6 +260,7 @@ export default {
       isShowOptions: false,
       isShowInput: false,
       searchData: "",
+      timeOut: null,
     };
   },
   mounted() {
@@ -415,7 +417,10 @@ export default {
     onSearchByKeyWork(keyword = "") {
       this.searchData = keyword;
       if (this.asynchronousSelect) {
-        this.$emit("search-change", keyword);
+        clearTimeout(this.timeOut);
+        this.timeOut = setTimeout(() => {
+          this.$emit("search-change", keyword);
+        }, 300);
       } else if (!this.groupSelect) {
         let result = [];
         for (let i = 0; i < this.options.length; i++) {
