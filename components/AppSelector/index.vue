@@ -174,7 +174,7 @@
 
 <script>
 export default {
-  emits: ["select", "multySelects", "search-change"],
+  emits: ["select", "update:modalValue", "search-change"],
   props: {
     options: [Array],
     label: {
@@ -250,7 +250,11 @@ export default {
     groupSelect: {
       type: Boolean,
       default: false,
-    },
+    }
+  },
+  model: {
+    prop: 'modalValue',
+    event: 'update:modalValue'
   },
   data() {
     return {
@@ -341,7 +345,7 @@ export default {
       this.optionsChose.push(item);
       this.searchData = "";
       this.optionsForShow = this.options;
-      this.$emit("multySelects", this.optionsChose);
+      this.$emit("update:modalValue", this.optionsChose);
     },
     removeOptionFromOptionsChose(item) {
       this.optionsChose = this.optionsChose.filter(
@@ -349,7 +353,7 @@ export default {
       );
       this.searchData = "";
       this.optionsForShow = this.options;
-      this.$emit("multySelects", this.optionsChose);
+      this.$emit("update:modalValue", this.optionsChose);
     },
     removeOptionsFromOptionsChose(group) {
       group.forEach((element) => {
@@ -361,7 +365,7 @@ export default {
       });
       this.searchData = "";
       this.optionsForShow = this.options;
-      this.$emit("multySelects", this.optionsChose);
+      this.$emit("update:modalValue", this.optionsChose);
     },
     onChooseOption(item) {
       if (!this.multiple) {
@@ -381,14 +385,14 @@ export default {
         if (this.closeOnSelect) {
           this.onShowOptions();
         }
-        this.$emit("select", this.optionChose);
+        this.$emit("update:modalValue", this.optionChose);
       } else {
         if (!this.optionsChose.includes(item)) {
           this.addOptionToOptionsChose(item);
         } else {
           this.removeOptionFromOptionsChose(item);
         }
-        this.$emit("multySelects", this.optionsChose);
+        this.$emit("update:modalValue", this.optionsChose);
       }
     },
     onChooseGroupOption(item) {
@@ -403,7 +407,7 @@ export default {
         }
         this.optionsChose.push(element);
       });
-      this.$emit("multySelects", this.optionsChose);
+      this.$emit("update:modalValue", this.optionsChose);
     },
     isSelectedAllGroupOption(group) {
       return group.every((op) => this.optionsChose.includes(op));
@@ -411,8 +415,8 @@ export default {
     onClearAll() {
       this.optionsChose = [];
       this.optionChose = {};
-      this.$emit("multySelects", this.optionsChose);
-      this.$emit("select", this.optionChose);
+      this.$emit("update:modalValue", this.optionsChose);
+      this.$emit("update:modalValue", this.optionChose);
     },
     onSearchByKeyWork(keyword = "") {
       this.searchData = keyword;

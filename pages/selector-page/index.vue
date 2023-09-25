@@ -4,7 +4,7 @@
       <h3>Single select</h3>
       <AppSelector
         :options="mountainList"
-        @select="onSingleSelect"
+        v-model="singleSelect"
         :searchable="false"
         :close-on-select="true"
         track-by="title"
@@ -22,7 +22,7 @@
       <h3>Select with search</h3>
       <AppSelector
         :options="mountainList"
-        @select="onSingSelectWithSearch"
+        v-model="singSelectWithSearch"
         :custom-label="nameWithContinent"
         :close-on-select="true"
         track-by="title"
@@ -45,7 +45,7 @@
       <h3>Multiple select - with search</h3>
       <AppSelector
         :options="mountainList"
-        @multySelects="onMultySelectWithSearch"
+        v-model="multySelectWithSearch"
         :custom-label="nameWithContinent"
         :close-on-select="false"
         track-by="slug"
@@ -66,7 +66,7 @@
       <h3>Tagging select - with search</h3>
       <AppSelector
         :options="mountainList"
-        @multySelects="onTaggingSelectWithSearch"
+        v-model="taggingSelectWithSearch"
         :custom-label="nameWithContinent"
         :close-on-select="false"
         track-by="slug"
@@ -87,7 +87,7 @@
       <h3>Group select - with search</h3>
       <AppSelector
         :options="groupOptions"
-        @multySelects="onGroupSelectWithSearch"
+        v-model="groupSelectWithSearch"
         group-values="libs"
         group-label="language"
         :group-select="true"
@@ -111,7 +111,7 @@
       <h3>Asynchronous select - with search</h3>
       <AppSelector
         :options="countries"
-        @multySelects="onAsynchronousSelectWithSearch"
+        v-model="asynchronousSelectWithSearch"
         label="name"
         track-by="idd"
         :taggable="true"
@@ -140,7 +140,7 @@
       <h3>Custom select - with search</h3>
       <AppSelector
         :options="mountainList"
-        @select="onCustomSelect"
+        v-model="customSelect"
         label="title"
         :searchable="false"
         :close-on-select="true"
@@ -234,40 +234,6 @@ export default {
     ...mapState(["mountainList"]),
   },
   methods: {
-    onSingleSelect(item) {
-      console.log(item);
-      this.singleSelect = item;
-    },
-    onSingSelectWithSearch(item) {
-      console.log(item);
-      this.singSelectWithSearch = item;
-    },
-    onMultySelectWithSearch(multiItem) {
-      this.multySelectWithSearch = multiItem;
-      console.log(multiItem);
-    },
-    onTaggingSelectWithSearch(multiItem) {
-      this.taggingSelectWithSearch = multiItem;
-    },
-    onGroupSelectWithSearch(multiItem) {
-      this.groupSelectWithSearch = multiItem;
-    },
-    onAsynchronousSelectWithSearch(multiItem) {
-      console.log(multiItem);
-      this.asynchronousSelectWithSearch = multiItem;
-    },
-    onCustomSelect(item) {
-      this.customSelect = item;
-    },
-    onSelect(item) {
-      this.option = item;
-    },
-    onMultySelects(multiItem) {
-      this.options = multiItem;
-    },
-    onMultySelectCountry(multiItem) {
-      this.selectedCountries = multiItem;
-    },
     nameWithContinent({ title, continent }) {
       return `${title} — [${continent}]`;
     },

@@ -2,23 +2,22 @@
   <div>
     <h1>a funny sentence inside</h1>
     <NuxtLink to="/home">Home page</NuxtLink>
-    <input type="text" @input="delaySearch($event)" />
+    <CustomInput v-model:text="searchText" /> {{ 'searchText: ' + searchText }}
+    <CustomInput v-model:text="message" /> {{ 'message: ' + message }}
   </div>
 </template>
 
 <script>
-import debounce from "lodash/debounce";
 
 export default {
   layout: "custom",
   name: "fun",
-  methods: {
-    delaySearch: (e) => {
-      const delayedFunction = debounce(() => {
-        console.log("search!!: ", e.target.value);
-      }, 600);
-      delayedFunction();
-    },
+  data(){
+    return{
+      searchText:'hehehe',
+      message: 'message'
+    }
   },
+  methods: {},
 };
 </script>
