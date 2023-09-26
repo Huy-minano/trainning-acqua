@@ -80,7 +80,9 @@
       tabindex="-1"
       class="multiselect__content-wrapper"
       style="max-height: 300px"
+      ref="optionsList"
       v-if="isShowOptions && !groupSelect"
+      @scroll="onscroll"
     >
       <ul
         role="listbox"
@@ -124,7 +126,9 @@
       tabindex="-1"
       class="multiselect__content-wrapper"
       style="max-height: 300px"
+      ref="optionsList"
       v-else-if="isShowOptions && groupSelect"
+      @scroll="onscroll"
     >
       <ul
         role="listbox"
@@ -174,7 +178,7 @@
 
 <script>
 export default {
-  emits: ["select", "update:modalValue", "search-change"],
+  emits: ["search-change", 'loadMore'],
   props: {
     options: [Array],
     label: {
@@ -250,11 +254,11 @@ export default {
     groupSelect: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   model: {
-    prop: 'modalValue',
-    event: 'update:modalValue'
+    prop: "modalValue",
+    event: "update:modalValue",
   },
   data() {
     return {
@@ -268,7 +272,7 @@ export default {
     };
   },
   mounted() {
-    this.optionsForShow = this.options;
+    this.optionsForShow = this.options
   },
   watch: {
     options: function (newVal, oldVal) {
@@ -454,6 +458,19 @@ export default {
         }
         this.optionsForShow = [...listGroupResult];
       }
+    },
+    onscroll() {
+      let lastScrollTop = 0;
+      const element = this.$refs.optionsList;
+      element.onscroll = (e) => {
+        if (element.scrollTop < lastScrollTop) {
+          return;
+        }
+        lastScrollTop = element.scrollTop <= 0 ? 0 : element.scrollTop;
+        if (element.scrollTop + element.clientHeight >= element.scrollHeight) {
+          this.$emit("loadMore");
+        }
+      };
     },
   },
 };

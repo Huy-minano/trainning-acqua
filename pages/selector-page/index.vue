@@ -110,7 +110,7 @@
     <div class="item-block">
       <h3>Asynchronous select - with search</h3>
       <AppSelector
-        :options="countries"
+        :options="countriesRender"
         v-model="asynchronousSelectWithSearch"
         label="name"
         track-by="idd"
@@ -122,6 +122,7 @@
         :close-on-select="false"
         :asynchronous-select="true"
         @search-change="asyncFind"
+        @loadMore="onLoadMore"
       />
       <div class="option-selected">
         <p>Select with search selected option:</p>
@@ -204,6 +205,9 @@ export default {
       options: [],
       selectedCountries: [],
       countries: [],
+      countriesRender: [],
+      timeLoadMore: 1,
+      perLoadMore: 20,
       isLoading: true,
       groupOptions: [
         {
@@ -241,6 +245,7 @@ export default {
       return `and ${count} other countries`;
     },
     async asyncFind(query) {
+      this.timeLoadMore = 1;
       this.isLoading = true;
       await fetch(`https://restcountries.com/v3.1/name/${query}`)
         .then((response) => {
@@ -250,10 +255,24 @@ export default {
         })
         .then((response) => {
           this.countries = response;
+          this.countriesRender = this.countries.slice(
+            0,
+            this.perLoadMore * this.timeLoadMore
+          );
         })
         .finally(() => {
           this.isLoading = false;
         });
+    },
+    onLoadMore() {
+      this.timeLoadMore += 1;
+      if (this.countriesRender.length === this.countries.length) {
+        return;
+      }
+      this.countriesRender = this.countries.slice(
+        0,
+        this.perLoadMore * this.timeLoadMore
+      );
     },
   },
 };
